@@ -7,5 +7,5 @@ set -e
 
 cd puller
 # Make a static binary
-CGO_ENABLED=0 GOOS=linux go build -a -tags netgo -ldflags '-w' puller.go
+CGO_ENABLED=0 GOOS=linux go build -a -tags netgo -ldflags '-w -s' puller.go
 docker build -t yuvipanda/image-puller:$(cat version) .
