@@ -55,7 +55,7 @@ func main() {
 
 	// The image pull API is probably not going to change for quite a while!
 	// This is a hack, but easier than constructing a client manually
-	os.Setenv("DOCKER_API_VERSION", "1.24")
+	os.Setenv("DOCKER_API_VERSION", "1.23")
 
 	cli, err := client.NewEnvClient()
 	if err != nil {
