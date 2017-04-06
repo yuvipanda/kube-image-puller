@@ -23,8 +23,9 @@ spec:
     spec:
       restartPolicy: Never
       containers:
-        - image: yuvipanda/puller-pod
-          args: ["ubuntu", "15.04"]
+        - image: yuvipanda/image-puller:v0.1
+          command: ["/puller"]
+          args: ["ubuntu:15.04"]
           name: puller
           volumeMounts:
             - mountPath: /var/run/docker.sock
