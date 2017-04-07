@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {JOBNAME}
+spec:
+  parallelism: {NODECOUNT}
+  template:
+    metadata:
+      labels:
+        yuvi.in/pod-puller: "true"             
+      annotations:
+        scheduler.alpha.kubernetes.io/affinity: >
+          {
+            "podAntiAffinity": {
+              "requiredDuringSchedulingIgnoredDuringExecution": [{
+                 "topologyKey": "kubernetes.io/hostname",
+                 "labelSelector": {
+                   "matchLabels": { "yuvi.in/pod-puller": "true"}
+                 }
+              }]
+            }
+          }
+    spec:
+      restartPolicy: Never
+      containers:
+        - image: yuvipanda/image-puller:v0.1
+          command: ["/puller"]
+          args: ["{IMAGESPEC}"]
+          name: puller
+          volumeMounts:
+            - mountPath: /var/run/docker.sock
+              name: docker-socket
+      volumes:
+        - name: docker-socket
+          hostPath:
+            path: /var/run/docker.sock
