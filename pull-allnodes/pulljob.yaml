@@ -23,9 +23,8 @@ spec:
     spec:
       restartPolicy: Never
       containers:
-        - image: yuvipanda/image-puller:v0.1
-          command: ["/puller"]
-          args: ["{IMAGESPEC}"]
+        - image: yuvipanda/image-puller:v0.2
+          args: ["{IMAGE}", "{TAG}"]
           name: puller
           volumeMounts:
             - mountPath: /var/run/docker.sock
