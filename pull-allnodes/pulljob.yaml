@@ -3,6 +3,9 @@ kind: Job
 metadata:
   name: {JOBNAME}
 spec:
+  # Pulls should not take more than an aggregate of twenty minutes.
+  # This will prevent it from spawning pods *forever*, but only for 20min
+  activeDeadlineSeconds: 1200
   parallelism: {NODECOUNT}
   template:
     metadata:
