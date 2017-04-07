@@ -23,10 +23,9 @@ while true; do
     SUCCESSCOUNT=$(kubectl get job ${JOBNAME} -o jsonpath='{.status.succeeded}')
     if [ ${SUCCESSCOUNT} -eq ${NODECOUNT} ]; then
         echo "All nodes pulled successfully!"
+        kubectl delete job ${JOBNAME}
         exit 0
     fi
 
     echo "Pulled ${SUCCESSCOUNT} of ${NODECOUNT} nodes"
 done
-
-kubectl delete job ${JOBNAME}
