@@ -7,6 +7,7 @@ spec:
   # This will prevent it from spawning pods *forever*, but only for 20min
   activeDeadlineSeconds: 1200
   parallelism: {NODECOUNT}
+  completions: {NODECOUNT}
   template:
     metadata:
       labels:
