@@ -3,8 +3,7 @@ set -e
 
 IMAGE="${1}"
 TAG="${2}"
-# FIXME: Detect NotReady nodes somehow?
-NODECOUNT=$(kubectl get node | awk '{ if ($2 ~ /Ready/) print $1; }'  | wc -l)
+NODECOUNT=$(kubectl get node | awk '{ if ($2 == "Ready") print $1; }'  | wc -l)
 
 IMAGESHORTNAME=$(echo -n ${IMAGE} | cut -d'/' -f3)
 JOBNAME=$(echo -n "pull-${IMAGESHORTNAME}-${TAG}-$(date +'%s')" | sed 's/\./-/g')
