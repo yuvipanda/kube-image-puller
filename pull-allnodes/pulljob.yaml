@@ -11,19 +11,7 @@ spec:
   template:
     metadata:
       labels:
-        yuvi.in/pod-puller: "true"             
-      annotations:
-        scheduler.alpha.kubernetes.io/affinity: >
-          {
-            "podAntiAffinity": {
-              "requiredDuringSchedulingIgnoredDuringExecution": [{
-                 "topologyKey": "kubernetes.io/hostname",
-                 "labelSelector": {
-                   "matchLabels": { "yuvi.in/pod-puller": "true"}
-                 }
-              }]
-            }
-          }
+        yuvi.in/pod-puller: "true"
     spec:
       restartPolicy: Never
       containers:
@@ -37,3 +25,19 @@ spec:
         - name: docker-socket
           hostPath:
             path: /var/run/docker.sock
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: "kubernetes.io/hostname"
+                operator: In
+                values: {NODENAMES}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: "kubernetes.io/hostname"
+            labelSelector:
+              matchLabels:
+                "yuvi.in/pod-puller": "true"
+      tolerations:
+        - operator: Exists

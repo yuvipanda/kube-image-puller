@@ -3,7 +3,15 @@ set -e
 
 IMAGE="${1}"
 TAG="${2}"
-NODECOUNT=$(kubectl get node | awk '{ if ($2 == "Ready") print $1; }'  | wc -l)
+shift 2
+NODENAMES=$(kubectl get node $@ | awk '{ if ($2 == "Ready") print $1; }')
+NODECOUNT=$(echo "$NODENAMES" | wc -l)
+NODENAMESARRAY="["
+for name in $NODENAMES; do
+  NODENAMESARRAY="${NODENAMESARRAY}${sep}\"${name}\""
+  sep=", "
+done
+NODENAMESARRAY="${NODENAMESARRAY}]"
 
 IMAGESHORTNAME=$(echo -n ${IMAGE} | cut -d'/' -f3)
 JOBNAME=$(echo -n "pull-${IMAGESHORTNAME}-${TAG}-$(date +'%s')" | sed 's/\./-/g')
@@ -15,6 +23,7 @@ cat pulljob.yaml \
     | sed "s/{JOBNAME}/${JOBNAME}/" \
     | sed "s_{IMAGE}_${IMAGE}_" \
     | sed "s_{TAG}_${TAG}_" \
+    | sed "s_{NODENAMES}_${NODENAMESARRAY}_" \
     | kubectl apply -f -
 
 while true; do
