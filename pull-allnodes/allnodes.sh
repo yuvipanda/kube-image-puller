@@ -5,7 +5,7 @@ IMAGE="${1}"
 TAG="${2}"
 NODECOUNT=$(kubectl get node | awk '{ if ($2 == "Ready") print $1; }'  | wc -l)
 
-IMAGESHORTNAME=$(echo -n ${IMAGE} | cut -d'/' -f3)
+IMAGESHORTNAME=$(basename ${IMAGE})
 JOBNAME=$(echo -n "pull-${IMAGESHORTNAME}-${TAG}-$(date +'%s')" | sed 's/\./-/g')
 
 echo "Pulling ${IMAGE}:${TAG} on ${NODECOUNT} nodes" 
