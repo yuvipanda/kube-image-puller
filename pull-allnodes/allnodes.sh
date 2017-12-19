@@ -25,14 +25,13 @@ cat pulljob.yaml \
     | kubectl apply -f -
 
 for node in ${NODELIST} ; do
+    echo waiting for ${IMAGE}:${TAG} on $node
     while true; do
-        sleep 1
         if [ -n "$(node_images ${node} | grep "${IMAGE}:${TAG}")" ]; then
             echo $node has ${IMAGE}:${TAG}
             break
-        else
-            echo waiting for ${IMAGE}:${TAG} on $node
         fi
+        sleep 5
     done
 done
 
