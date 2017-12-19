@@ -1,14 +1,21 @@
 #!/bin/sh
 set -e
 
+# Print container images on a given node, one per line
+function node_images {
+    kubectl get node $1 -o jsonpath='{.status.images[*].names[*]}' | \
+        tr ' ' '\n'
+}
+
 IMAGE="${1}"
 TAG="${2}"
-NODECOUNT=$(kubectl get node | awk '{ if ($2 == "Ready") print $1; }'  | wc -l)
+IMAGESHORTNAME=$(basename ${IMAGE} | tr '.' '-')
+JOBNAME="pull-${IMAGESHORTNAME}-${TAG}-$(date +'%s')"
 
-IMAGESHORTNAME=$(echo -n ${IMAGE} | cut -d'/' -f3)
-JOBNAME=$(echo -n "pull-${IMAGESHORTNAME}-${TAG}-$(date +'%s')" | sed 's/\./-/g')
+NODELIST=$(kubectl get node | awk '{ if ($2 == "Ready") print $1; }')
+NODECOUNT=$(echo $NODELIST | wc -w)
 
-echo "Pulling ${IMAGE}:${TAG} on ${NODECOUNT} nodes" 
+echo Pulling "${IMAGE}:${TAG}" on ${NODECOUNT} nodes
 
 cat pulljob.yaml \
     | sed "s/{NODECOUNT}/${NODECOUNT}/" \
@@ -17,14 +24,17 @@ cat pulljob.yaml \
     | sed "s_{TAG}_${TAG}_" \
     | kubectl apply -f -
 
-while true; do
-    sleep 2 # Hack because .succeeded isn't populated instantly
-    SUCCESSCOUNT=$(kubectl get job ${JOBNAME} -o jsonpath='{.status.succeeded}')
-    if [ ${SUCCESSCOUNT} -eq ${NODECOUNT} ]; then
-        echo "All nodes pulled successfully!"
-        kubectl delete job ${JOBNAME}
-        exit 0
-    fi
-
-    echo "Pulled ${SUCCESSCOUNT} of ${NODECOUNT} nodes"
+for node in ${NODELIST} ; do
+    while true; do
+        sleep 1
+        if [ -n "$(node_images ${node} | grep "${IMAGE}:${TAG}")" ]; then
+            echo $node has ${IMAGE}:${TAG}
+            break
+        else
+            echo waiting for ${IMAGE}:${TAG} on $node
+        fi
+    done
 done
+
+echo "All nodes pulled successfully!"
+kubectl delete job ${JOBNAME}
