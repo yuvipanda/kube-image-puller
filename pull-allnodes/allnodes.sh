@@ -12,7 +12,7 @@ TAG="${2}"
 IMAGESHORTNAME=$(basename ${IMAGE} | tr '.' '-')
 JOBNAME="pull-${IMAGESHORTNAME}-${TAG}-$(date +'%s')"
 
-NODELIST=$(kubectl get node | awk '{ if ($2 == "Ready") print $1; }')
+NODELIST=$(kubectl get node | grep -v master | awk '{ if ($2 == "Ready") print $1; }')
 NODECOUNT=$(echo $NODELIST | wc -w)
 
 echo Pulling "${IMAGE}:${TAG}" on ${NODECOUNT} nodes
