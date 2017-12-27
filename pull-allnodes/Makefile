@@ -1,5 +1,5 @@
 VERSION=$(shell git rev-parse --short HEAD)
-IMAGE=berkeleydsep/image-allnodes-puller
+IMAGE=ryanlovett/image-allnodes-puller
 
 release: VERSION=$(shell git tag -l --points-at HEAD)
 
